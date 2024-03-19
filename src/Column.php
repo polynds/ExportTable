@@ -13,11 +13,15 @@ class Column
 
     protected ?string $type;
 
+    protected ?string $typeLength;
+
     protected ?string $comment;
 
     protected ?bool $primaryKey;
 
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public function getName(): ?string
     {
@@ -38,6 +42,17 @@ class Column
     public function setType(?string $type): Column
     {
         $this->type = $type;
+        return $this;
+    }
+
+    public function getTypeLength(): ?string
+    {
+        return $this->typeLength;
+    }
+
+    public function setTypeLength(?string $typeLength): Column
+    {
+        $this->typeLength = $typeLength;
         return $this;
     }
 

@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use Polynds\ExportTable\Column;
+use Polynds\ExportTable\Indexer;
 use Polynds\ExportTable\Table;
 
 class WordGenerator implements Generator
@@ -32,18 +33,20 @@ class WordGenerator implements Generator
 
     public function generate(Collection $tables): self
     {
+        $subCellColorStyle = ['bgColor' => 'FFFFFF'];
         $colorStyle = ['bgColor' => 'F5F5F5'];
         $valignStyle = ['valign' => 'center'];
         $cellStyle = $valignStyle + $colorStyle;
         $subCellStyle = $valignStyle;
-        $tables->each(function (Table $table) use ($subCellStyle, $cellStyle, $colorStyle) {
+        $tables->each(function (Table $table) use ($subCellColorStyle, $subCellStyle, $cellStyle, $colorStyle) {
             $section = $this->phpWord->addSection();
             $section->getStyle()->setBreakType('nextColumn');
 
             $this->phpWord->addTableStyle('myTable', ['borderColor' => '000000', 'borderSize' => 6, 'cellMargin' => 120], ['bgColor' => '000000']);
             $myTable = $section->addTable('myTable');
             $myTable->addRow();
-            $myTable->addCell(8000, ['gridSpan' => 4] + $colorStyle)->addText($table->getName() . PHP_EOL . $table->getComment());
+            $title = $table->getName() . ($table->getComment() ? '<w:br />' . $table->getComment() : '');
+            $myTable->addCell(8000, ['gridSpan' => 4] + $colorStyle)->addText($title);
             $myTable->addRow(null, $colorStyle);
             $fontStyle = ['bold' => true, 'align' => 'center'];
             $myTable->addCell(2000, $cellStyle)->addText('字段', $fontStyle);
@@ -54,13 +57,23 @@ class WordGenerator implements Generator
             foreach ($table->getColumns() as $column) {
                 $myTable->addRow();
                 $myTable->addCell(2000, $subCellStyle)->addText($column->getName());
-                $myTable->addCell(2000, $subCellStyle)->addText($column->getType());
+                $myTable->addCell(2000, $subCellStyle)->addText($column->getType() . ' ( ' . $column->getTypeLength() . ' ) ');
                 $myTable->addCell(2000, $subCellStyle)->addText($column->getPrimaryKeyText());
                 $myTable->addCell(2000, $subCellStyle)->addText($column->getComment());
             }
+
+            $indexerStr = '';
+            /** @var Indexer $indexer */
+            foreach ($table->getIndexers() as $indexer) {
+                $indexerStr .= $indexer->getName() . ' ' . $indexer->getIsPrimaryText() . ' ' . $indexer->getIsUniqueText() . ' ( ' . $indexer->getColumnsText() . ' )<w:br />';
+            }
+            $indexerStr = substr($indexerStr, 0, -8);
+            $myTable->addRow();
+            $myTable->addCell(8000, ['gridSpan' => 4])->addText($indexerStr);
+
             if ($this->ddl) {
                 $myTable->addRow();
-                $myTable->addCell(8000, ['gridSpan' => 4, 'wardWrap' => 'true'])->addText($table->getDDL());
+                $myTable->addCell(8000, ['gridSpan' => 4, 'wordWrap' => 'true'])->addText($table->getDDL(),['size'=>6]);
             }
         });
 

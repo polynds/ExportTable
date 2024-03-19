@@ -13,13 +13,23 @@ class Table
 
     protected ?string $comment;
 
+    /**
+     * @var Column[]|null
+     */
     protected ?array $columns;
 
     protected ?string $primaryKeyName;
 
     protected ?string $ddl;
 
-    public function __construct() {}
+    /**
+     * @var Indexer[]|null
+     */
+    protected ?array $indexers;
+
+    public function __construct()
+    {
+    }
 
     public function getName(): ?string
     {
@@ -73,6 +83,17 @@ class Table
     public function setDDL(?string $ddl): Table
     {
         $this->ddl = $ddl;
+        return $this;
+    }
+
+    public function getIndexers(): ?array
+    {
+        return $this->indexers;
+    }
+
+    public function setIndexers(?array $indexers): Table
+    {
+        $this->indexers = $indexers;
         return $this;
     }
 }

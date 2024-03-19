@@ -21,7 +21,7 @@ class Finder
         $schema = $connection->getDoctrineSchemaManager();
 
         return collect($schema->listTables())->filter(function (DoctrineTable $table) {
-            return ! in_array($table->getName(), config('export_table.ignore', []), true)
+            return !in_array($table->getName(), config('export_table.ignore', []), true)
                 || in_array($table->getName(), config('export_table.whitelist', []), true);
         });
     }
@@ -43,7 +43,7 @@ class Finder
             return null;
         }
 
-        return data_get($ddl, 'Create Table') . ';';
+        return str_replace("\n", '<w:br />', data_get($ddl, 'Create Table')) . ';';
     }
 
     public function getDatabasesName(): string
