@@ -2,7 +2,7 @@
     "name": "polynds/export-table",
     "description": "Export table structure as a table document, based on the Laravel extension pack.",
     "type": "library",
-    "license": "MIT License",
+    "license": "MIT",
     "authors": [
         {
             "name": "kuangjian",
